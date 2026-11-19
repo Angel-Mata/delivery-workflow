@@ -1,0 +1,10 @@
+services:
+  app:
+    image: delivery-demo:${APP_VERSION:?APP_VERSION is required}
+    container_name: delivery-demo-app
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    environment:
+      - FAIL_READINESS=${FAIL_READINESS:-false}
+    restart: unless-stopped
+    

@@ -1,0 +1,56 @@
+name: Delivery Pipeline CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify-delivery-workflow:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check Python syntax
+        run: python3 -m py_compile app/main.py
+
+      - name: Check Bash scripts syntax
+        run: |
+          chmod +x scripts/*.sh
+          for f in scripts/*.sh; do
+            bash -n "$f"
+          done
+
+      - name: Build release A (1.0.0) and release B (2.0.0)
+        run: |
+          ./scripts/build.sh 1.0.0
+          ./scripts/build.sh 2.0.0
+
+      - name: Deploy and verify release A (1.0.0)
+        run: FAIL_READINESS=false ./scripts/deploy.sh 1.0.0
+
+      - name: Attempt bad release B (2.0.0) and verify failure + automatic rollback
+        run: |
+          set +e
+          FAIL_READINESS=true VERIFY_TIMEOUT=5 ./scripts/deploy.sh 2.0.0
+          EXIT_CODE=$?
+          set -e
+
+          echo "deploy.sh exited with code: ${EXIT_CODE}"
+          if [ "${EXIT_CODE}" -eq 0 ]; then
+            echo "ERROR: Expected non-zero exit code for failing release 2.0.0"
+            exit 1
+          fi
+
+      - name: Verify recovered release A (1.0.0) is healthy and serving traffic
+        run: |
+          ./scripts/verify.sh 1.0.0 10
+          ./scripts/status.sh
+
+      - name: Cleanup containers
+        if: always()
+        run: APP_VERSION=1.0.0 docker compose down --remove-orphans || true
+        

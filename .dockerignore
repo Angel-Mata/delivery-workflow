@@ -1,0 +1,8 @@
+.git
+.github
+.deploy-state
+scripts
+README.md
+docker-compose.yml
+Makefile
+__pycache__
