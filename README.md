@@ -214,7 +214,7 @@ GET /health/ready: {"status":"ready","version":"1.0.0"}
 
 ## Time Spent & Prioritized Next Steps
 
-- **Approximate Time Spent:** ~2.5 hours (implementation, local troubleshooting/validation, CI setup, and documentation).
+- **Approximate Time Spent:** 4.5 hours (implementation, local troubleshooting/validation, CI setup, and documentation).
 - **Prioritized Next Steps (if extending beyond the time limit):**
   1. Add unit/integration tests with `pytest` for endpoint contracts and readiness failure behavior.
   2. Support zero-downtime local/CI cutovers (e.g., side-by-side container swap behind a lightweight reverse proxy like Caddy/Nginx).
