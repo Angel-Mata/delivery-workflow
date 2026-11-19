@@ -1,6 +1,6 @@
 services:
   app:
-    image: delivery-demo:${APP_VERSION:?APP_VERSION is required}
+    image: ${APP_IMAGE:?APP_IMAGE is required}
     container_name: delivery-demo-app
     ports:
       - "${APP_PORT:-8000}:8000"

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="${1:?Uso: $0 <version>}"
+VERSION="${1:?Usage: $0 <version>}"
 GIT_SHA="$(git rev-parse --short HEAD 2>/dev/null || echo 'no-git')"
 BUILD_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-IMAGE="delivery-demo:${VERSION}"
+IMAGE="delivery-demo:${VERSION}-${GIT_SHA}"
 
-echo "[build] Construyendo ${IMAGE} (git_sha=${GIT_SHA}, build_time=${BUILD_TIME})..."
+echo "[build] Building ${IMAGE} (git_sha=${GIT_SHA}, build_time=${BUILD_TIME})..."
 
 docker build \
   --build-arg APP_VERSION="${VERSION}" \
@@ -15,4 +15,5 @@ docker build \
   -t "${IMAGE}" \
   .
 
-echo "[build] Imagen lista: ${IMAGE}"
+IMAGE_ID="$(docker image inspect --format '{{.Id}}' "${IMAGE}")"
+echo "[build] Image ready: ${IMAGE} (id=${IMAGE_ID})"
