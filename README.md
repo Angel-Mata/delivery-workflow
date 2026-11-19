@@ -139,10 +139,78 @@ docker inspect --format '{{json .Config.Labels}}' delivery-demo-app
 ### Captured Output (`make demo`)
 
 ```text
-<!-- PASTE FULL `make demo` OUTPUT HERE AFTER YOUR FIRST GIT COMMIT -->
-```
+$ make demo
+>>> 1. Build y deploy de versión A (1.0.0)...
+./scripts/build.sh 1.0.0
+[build] Construyendo delivery-demo:1.0.0 (git_sha=6453a28, build_time=2026-11-19T22:00:55Z)...
+[build] Imagen lista: delivery-demo:1.0.0
+FAIL_READINESS=false ./scripts/deploy.sh 1.0.0
+[deploy] Iniciando despliegue: version=1.0.0, FAIL_READINESS=false
+[+] up 1/1
+ ✔ Container delivery-demo-app Started                                      0.5s
+[verify] Esperando readiness en http://localhost:8000/health/ready (timeout=10s)...
+[verify] OK: /health/ready respondió HTTP 200 en 1s.
+[verify] OK: /version confirmado ({"version":"1.0.0","git_sha":"6453a28","build_time":"2026-11-19T22:00:55Z"}).
+[verify] OK: /work respondió HTTP 200 ({"status":"ok","result":"work_completed","version":"1.0.0"}).
+[deploy] ÉXITO: Release 1.0.0 desplegado y guardado como last_known_good.
 
----
+>>> 2. Build e intento de deploy de versión B (2.0.0) con readiness fallando...
+./scripts/build.sh 2.0.0
+[build] Construyendo delivery-demo:2.0.0 (git_sha=6453a28, build_time=2026-11-19T22:01:03Z)...
+[build] Imagen lista: delivery-demo:2.0.0
+[deploy] Iniciando despliegue: version=2.0.0, FAIL_READINESS=true
+[+] up 1/1
+ ✔ Container delivery-demo-app Started                                      0.4s
+[verify] Esperando readiness en http://localhost:8000/health/ready (timeout=5s)...
+[verify] ERROR: Timeout (5s) esperando readiness. Último HTTP=503.
+[verify] Respuesta: {"status":"not_ready","reason":"configured_to_fail_readiness","version":"2.0.0"}
+[deploy] FALLO: El release 2.0.0 no superó la verificación.
+[deploy] Últimos logs del contenedor fallido:
+INFO:     Started server process [1]
+INFO:     Waiting for application startup.
+{"timestamp": "2026-11-19T22:01:09.442841+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "6453a28", "message": "Service starting (fail_readiness=True)"}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on [http://0.0.0.0:8000](http://0.0.0.0:8000) (Press CTRL+C to quit)
+{"timestamp": "2026-11-19T22:01:10.151197+00:00", "level": "WARNING", "release_version": "2.0.0", "git_sha": "6453a28", "message": "Readiness check failed: FAIL_READINESS=true"}
+{"timestamp": "2026-11-19T22:01:10.151583+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "6453a28", "message": "GET /health/ready -> 503"}
+[deploy] Iniciando rollback automático al último release sano...
+[rollback] Restaurando último release sano: version=1.0.0 (FAIL_READINESS=false)...
+[+] up 1/1
+ ✔ Container delivery-demo-app Started                                      0.4s
+[verify] Esperando readiness en http://localhost:8000/health/ready (timeout=15s)...
+[verify] OK: /health/ready respondió HTTP 200 en 1s.
+[verify] OK: /version confirmado ({"version":"1.0.0","git_sha":"6453a28","build_time":"2026-11-19T22:00:55Z"}).
+[verify] OK: /work respondió HTTP 200 ({"status":"ok","result":"work_completed","version":"1.0.0"}).
+[rollback] OK: Release 1.0.0 restaurado y verificado.
+[deploy] Rollback completado, pero el despliegue de 2.0.0 se reporta como FALLIDO (exit 1).
+>>> 3. Fallo detectado correctamente (exit code=1) y rollback ejecutado.
+
+>>> 4. Verificando estado final restaurado (1.0.0)...
+./scripts/status.sh
+=== Estado del contenedor ===
+NAMES               IMAGE                 STATUS        PORTS
+delivery-demo-app   delivery-demo:1.0.0   Up 1 second   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+
+=== Último release sano registrado ===
+APP_VERSION=1.0.0
+FAIL_READINESS=false
+APP_PORT=8000
+DEPLOYED_AT=2026-11-19T22:01:03Z
+
+=== Endpoints en vivo ===
+GET /version:      {"version":"1.0.0","git_sha":"6453a28","build_time":"2026-11-19T22:00:55Z"}
+GET /health/live:  {"status":"alive","version":"1.0.0"}
+GET /health/ready: {"status":"ready","version":"1.0.0"}
+
+=== Últimos 10 logs ===
+{"timestamp": "2026-11-19T22:01:15.454619+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "Service starting (fail_readiness=False)"}
+{"timestamp": "2026-11-19T22:01:16.157466+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /health/ready -> 200"}
+{"timestamp": "2026-11-19T22:01:16.185641+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /version -> 200"}
+{"timestamp": "2026-11-19T22:01:16.210833+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /work -> 200"}
+{"timestamp": "2026-11-19T22:01:16.274744+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /version -> 200"}
+{"timestamp": "2026-11-19T22:01:16.292726+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /health/live -> 200"}
+{"timestamp": "2026-11-19T22:01:16.310713+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /health/ready -> 200"}
+```
 
 ## Time Spent & Prioritized Next Steps
 
@@ -152,4 +220,3 @@ docker inspect --format '{{json .Config.Labels}}' delivery-demo-app
   2. Support zero-downtime local/CI cutovers (e.g., side-by-side container swap behind a lightweight reverse proxy like Caddy/Nginx).
   3. Add image vulnerability scanning (e.g., Trivy) and `shellcheck` linting to the GitHub Actions workflow.
   4. Implement the AWS ECS Fargate + RDS setup in Terraform following the Production Design Note.
-  
