@@ -139,77 +139,131 @@ docker inspect --format '{{json .Config.Labels}}' delivery-demo-app
 ### Captured Output (`make demo`)
 
 ```text
-$ make demo
->>> 1. Build y deploy de versión A (1.0.0)...
+make demo
+>>> 1. Build and deploy release A (1.0.0)...
 ./scripts/build.sh 1.0.0
-[build] Construyendo delivery-demo:1.0.0 (git_sha=6453a28, build_time=2026-11-19T22:00:55Z)...
-[build] Imagen lista: delivery-demo:1.0.0
+[build] Building delivery-demo:1.0.0-a459eec (git_sha=a459eec, build_time=2026-11-19T22:52:42Z)...
+[+] Building 5.7s (11/11) FINISHED                                                                                                                         docker:desktop-linux
+ => [internal] load build definition from Dockerfile                                                                                                                       0.0s
+ => => transferring dockerfile: 727B                                                                                                                                       0.0s
+ => [internal] load metadata for docker.io/library/python:3.12-slim                                                                                                        0.8s
+ => [internal] load .dockerignore                                                                                                                                          0.0s
+ => => transferring context: 125B                                                                                                                                          0.0s
+ => [1/6] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b                                                  0.0s
+ => => resolve docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b                                                  0.0s
+ => [internal] load build context                                                                                                                                          0.0s
+ => => transferring context: 95B                                                                                                                                           0.0s
+ => CACHED [2/6] WORKDIR /app                                                                                                                                              0.0s
+ => CACHED [3/6] COPY app/requirements.txt .                                                                                                                               0.0s
+ => [4/6] RUN pip install --no-cache-dir -r requirements.txt                                                                                                               4.1s
+ => [5/6] COPY app/ ./app/                                                                                                                                                 0.0s 
+ => [6/6] RUN useradd --create-home --shell /bin/bash appuser                                                                                                              0.1s
+ => exporting to image                                                                                                                                                     0.6s
+ => => exporting layers                                                                                                                                                    0.4s
+ => => exporting manifest sha256:c7774e9dbed1993a9ac0e46100597b9cce7bed2be7226a723a08d0baff5a41f3                                                                          0.0s
+ => => exporting config sha256:2a632fdd91602dbdde81d7094174f6935e4a71124857208545fbe107e5ce43bf                                                                            0.0s
+ => => exporting attestation manifest sha256:94e1ea3036b799263682d4382dca6aadd894cf052893b39b8fdce28bb1a1a27f                                                              0.0s
+ => => exporting manifest list sha256:f47dc793e6b51fd9a3333c4a189fa34ae33b7e8dd7614de4f38963daa878da6c                                                                     0.0s
+ => => naming to docker.io/library/delivery-demo:1.0.0-a459eec                                                                                                             0.0s
+ => => unpacking to docker.io/library/delivery-demo:1.0.0-a459eec                                                                                                          0.1s
+[build] Image ready: delivery-demo:1.0.0-a459eec (id=sha256:f47dc793e6b51fd9a3333c4a189fa34ae33b7e8dd7614de4f38963daa878da6c)
 FAIL_READINESS=false ./scripts/deploy.sh 1.0.0
-[deploy] Iniciando despliegue: version=1.0.0, FAIL_READINESS=false
+[deploy] Starting deployment: image=delivery-demo:1.0.0-a459eec (id=sha256:f47dc793e6b51fd9a3333c4a189fa34ae33b7e8dd7614de4f38963daa878da6c), FAIL_READINESS=false
 [+] up 1/1
- ✔ Container delivery-demo-app Started                                      0.5s
-[verify] Esperando readiness en http://localhost:8000/health/ready (timeout=10s)...
-[verify] OK: /health/ready respondió HTTP 200 en 1s.
-[verify] OK: /version confirmado ({"version":"1.0.0","git_sha":"6453a28","build_time":"2026-11-19T22:00:55Z"}).
-[verify] OK: /work respondió HTTP 200 ({"status":"ok","result":"work_completed","version":"1.0.0"}).
-[deploy] ÉXITO: Release 1.0.0 desplegado y guardado como last_known_good.
+ ✔ Container delivery-demo-app Started                                                                                                                                      0.5s
+[verify] Waiting for readiness at http://localhost:8000/health/ready (timeout=10s)...
+[verify] OK: /health/ready returned HTTP 200 in 1s.
+[verify] OK: /version confirmed ({"version":"1.0.0","git_sha":"a459eec","build_time":"2026-11-19T22:52:42Z"}).
+[verify] OK: /work returned HTTP 200 ({"status":"ok","result":"work_completed","version":"1.0.0"}).
+[deploy] SUCCESS: Release delivery-demo:1.0.0-a459eec deployed and recorded as last_known_good.
 
->>> 2. Build e intento de deploy de versión B (2.0.0) con readiness fallando...
+>>> 2. Build and attempt deploy of release B (2.0.0) with failing readiness...
 ./scripts/build.sh 2.0.0
-[build] Construyendo delivery-demo:2.0.0 (git_sha=6453a28, build_time=2026-11-19T22:01:03Z)...
-[build] Imagen lista: delivery-demo:2.0.0
-[deploy] Iniciando despliegue: version=2.0.0, FAIL_READINESS=true
+[build] Building delivery-demo:2.0.0-a459eec (git_sha=a459eec, build_time=2026-11-19T22:52:51Z)...
+[+] Building 4.9s (11/11) FINISHED                                                                                                                         docker:desktop-linux
+ => [internal] load build definition from Dockerfile                                                                                                                       0.0s
+ => => transferring dockerfile: 727B                                                                                                                                       0.0s
+ => [internal] load metadata for docker.io/library/python:3.12-slim                                                                                                        0.2s
+ => [internal] load .dockerignore                                                                                                                                          0.0s
+ => => transferring context: 125B                                                                                                                                          0.0s
+ => [1/6] FROM docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b                                                  0.0s
+ => => resolve docker.io/library/python:3.12-slim@sha256:5e2bdb1b0d542d5039cffb8181c65930093949194a65c365dfb1b0fe13a4fa5b                                                  0.0s
+ => [internal] load build context                                                                                                                                          0.0s
+ => => transferring context: 95B                                                                                                                                           0.0s
+ => CACHED [2/6] WORKDIR /app                                                                                                                                              0.0s
+ => CACHED [3/6] COPY app/requirements.txt .                                                                                                                               0.0s
+ => [4/6] RUN pip install --no-cache-dir -r requirements.txt                                                                                                               3.9s
+ => [5/6] COPY app/ ./app/                                                                                                                                                 0.0s
+ => [6/6] RUN useradd --create-home --shell /bin/bash appuser                                                                                                              0.1s
+ => exporting to image                                                                                                                                                     0.5s
+ => => exporting layers                                                                                                                                                    0.4s
+ => => exporting manifest sha256:66b14a4423c01a9a211c59735606996fbf3e6d6fe4375a7d346a375aba399237                                                                          0.0s
+ => => exporting config sha256:a4944b8f31e94339a1b46fcd2d1e9a33e529ecd608e65c279518f6c66a95d25e                                                                            0.0s
+ => => exporting attestation manifest sha256:f8cf8a76648391782a20d22bfdf0a9d2bbb5d35b6151c29087325bcce55caaf0                                                              0.0s
+ => => exporting manifest list sha256:90d220621b87310f501a6fa983f3fd36e34c4a9c3c802375bf3da1535ff31b40                                                                     0.0s
+ => => naming to docker.io/library/delivery-demo:2.0.0-a459eec                                                                                                             0.0s
+ => => unpacking to docker.io/library/delivery-demo:2.0.0-a459eec                                                                                                          0.1s
+[build] Image ready: delivery-demo:2.0.0-a459eec (id=sha256:90d220621b87310f501a6fa983f3fd36e34c4a9c3c802375bf3da1535ff31b40)
+[deploy] Starting deployment: image=delivery-demo:2.0.0-a459eec (id=sha256:90d220621b87310f501a6fa983f3fd36e34c4a9c3c802375bf3da1535ff31b40), FAIL_READINESS=true
 [+] up 1/1
- ✔ Container delivery-demo-app Started                                      0.4s
-[verify] Esperando readiness en http://localhost:8000/health/ready (timeout=5s)...
-[verify] ERROR: Timeout (5s) esperando readiness. Último HTTP=503.
-[verify] Respuesta: {"status":"not_ready","reason":"configured_to_fail_readiness","version":"2.0.0"}
-[deploy] FALLO: El release 2.0.0 no superó la verificación.
-[deploy] Últimos logs del contenedor fallido:
+ ✔ Container delivery-demo-app Started                                                                                                                                      0.4s
+[verify] Waiting for readiness at http://localhost:8000/health/ready (timeout=5s)...
+[verify] ERROR: Timeout (5s) waiting for readiness. Last HTTP=503.
+[verify] Response: {"status":"not_ready","reason":"configured_to_fail_readiness","version":"2.0.0"}
+[deploy] FAILURE: Release delivery-demo:2.0.0-a459eec failed verification.
+[deploy] Last logs from failed container:
 INFO:     Started server process [1]
 INFO:     Waiting for application startup.
-{"timestamp": "2026-11-19T22:01:09.442841+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "6453a28", "message": "Service starting (fail_readiness=True)"}
+{"timestamp": "2026-11-19T22:52:57.573753+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "a459eec", "message": "Service starting (fail_readiness=True)"}
 INFO:     Application startup complete.
-INFO:     Uvicorn running on [http://0.0.0.0:8000](http://0.0.0.0:8000) (Press CTRL+C to quit)
-{"timestamp": "2026-11-19T22:01:10.151197+00:00", "level": "WARNING", "release_version": "2.0.0", "git_sha": "6453a28", "message": "Readiness check failed: FAIL_READINESS=true"}
-{"timestamp": "2026-11-19T22:01:10.151583+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "6453a28", "message": "GET /health/ready -> 503"}
-[deploy] Iniciando rollback automático al último release sano...
-[rollback] Restaurando último release sano: version=1.0.0 (FAIL_READINESS=false)...
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+{"timestamp": "2026-11-19T22:52:58.307241+00:00", "level": "WARNING", "release_version": "2.0.0", "git_sha": "a459eec", "message": "Readiness check failed: FAIL_READINESS=true"}
+{"timestamp": "2026-11-19T22:52:58.307701+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "a459eec", "message": "GET /health/ready -> 503"}
+{"timestamp": "2026-11-19T22:52:59.364766+00:00", "level": "WARNING", "release_version": "2.0.0", "git_sha": "a459eec", "message": "Readiness check failed: FAIL_READINESS=true"}
+{"timestamp": "2026-11-19T22:52:59.365189+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "a459eec", "message": "GET /health/ready -> 503"}
+{"timestamp": "2026-11-19T22:53:00.432261+00:00", "level": "WARNING", "release_version": "2.0.0", "git_sha": "a459eec", "message": "Readiness check failed: FAIL_READINESS=true"}
+{"timestamp": "2026-11-19T22:53:00.432919+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "a459eec", "message": "GET /health/ready -> 503"}
+{"timestamp": "2026-11-19T22:53:01.493753+00:00", "level": "WARNING", "release_version": "2.0.0", "git_sha": "a459eec", "message": "Readiness check failed: FAIL_READINESS=true"}
+{"timestamp": "2026-11-19T22:53:01.494191+00:00", "level": "INFO", "release_version": "2.0.0", "git_sha": "a459eec", "message": "GET /health/ready -> 503"}
+[deploy] Triggering automatic rollback to last known good release...
+[rollback] Restoring last known good release: image=delivery-demo:1.0.0-a459eec (id=sha256:f47dc793e6b51fd9a3333c4a189fa34ae33b7e8dd7614de4f38963daa878da6c), FAIL_READINESS=false...
 [+] up 1/1
- ✔ Container delivery-demo-app Started                                      0.4s
-[verify] Esperando readiness en http://localhost:8000/health/ready (timeout=15s)...
-[verify] OK: /health/ready respondió HTTP 200 en 1s.
-[verify] OK: /version confirmado ({"version":"1.0.0","git_sha":"6453a28","build_time":"2026-11-19T22:00:55Z"}).
-[verify] OK: /work respondió HTTP 200 ({"status":"ok","result":"work_completed","version":"1.0.0"}).
-[rollback] OK: Release 1.0.0 restaurado y verificado.
-[deploy] Rollback completado, pero el despliegue de 2.0.0 se reporta como FALLIDO (exit 1).
->>> 3. Fallo detectado correctamente (exit code=1) y rollback ejecutado.
+ ✔ Container delivery-demo-app Started                                                                                                                                      0.3s
+[verify] Waiting for readiness at http://localhost:8000/health/ready (timeout=15s)...
+[verify] OK: /health/ready returned HTTP 200 in 1s.
+[verify] OK: /version confirmed ({"version":"1.0.0","git_sha":"a459eec","build_time":"2026-11-19T22:52:42Z"}).
+[verify] OK: /work returned HTTP 200 ({"status":"ok","result":"work_completed","version":"1.0.0"}).
+[rollback] OK: Release delivery-demo:1.0.0-a459eec restored and verified.
+[deploy] Rollback completed, but deployment of delivery-demo:2.0.0-a459eec is reported as FAILED (exit 1).
+>>> 3. Failure detected as expected (exit code=1) and rollback completed.
 
->>> 4. Verificando estado final restaurado (1.0.0)...
+>>> 4. Verifying final restored state (1.0.0)...
 ./scripts/status.sh
-=== Estado del contenedor ===
-NAMES               IMAGE                 STATUS        PORTS
-delivery-demo-app   delivery-demo:1.0.0   Up 1 second   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+=== Container Status ===
+NAMES               IMAGE          STATUS        PORTS
+delivery-demo-app   f47dc793e6b5   Up 1 second   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
 
-=== Último release sano registrado ===
+=== Last Known Good Release ===
 APP_VERSION=1.0.0
+APP_IMAGE=delivery-demo:1.0.0-a459eec
+IMAGE_ID=sha256:f47dc793e6b51fd9a3333c4a189fa34ae33b7e8dd7614de4f38963daa878da6c
 FAIL_READINESS=false
 APP_PORT=8000
-DEPLOYED_AT=2026-11-19T22:01:03Z
+DEPLOYED_AT=2026-11-19T22:52:51Z
 
-=== Endpoints en vivo ===
-GET /version:      {"version":"1.0.0","git_sha":"6453a28","build_time":"2026-11-19T22:00:55Z"}
+=== Live Endpoints ===
+GET /version:      {"version":"1.0.0","git_sha":"a459eec","build_time":"2026-11-19T22:52:42Z"}
 GET /health/live:  {"status":"alive","version":"1.0.0"}
 GET /health/ready: {"status":"ready","version":"1.0.0"}
 
-=== Últimos 10 logs ===
-{"timestamp": "2026-11-19T22:01:15.454619+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "Service starting (fail_readiness=False)"}
-{"timestamp": "2026-11-19T22:01:16.157466+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /health/ready -> 200"}
-{"timestamp": "2026-11-19T22:01:16.185641+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /version -> 200"}
-{"timestamp": "2026-11-19T22:01:16.210833+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /work -> 200"}
-{"timestamp": "2026-11-19T22:01:16.274744+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /version -> 200"}
-{"timestamp": "2026-11-19T22:01:16.292726+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /health/live -> 200"}
-{"timestamp": "2026-11-19T22:01:16.310713+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "6453a28", "message": "GET /health/ready -> 200"}
+=== Last 10 Logs ===
+{"timestamp": "2026-11-19T22:53:03.568944+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "a459eec", "message": "Service starting (fail_readiness=False)"}
+{"timestamp": "2026-11-19T22:53:04.295102+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "a459eec", "message": "GET /health/ready -> 200"}
+{"timestamp": "2026-11-19T22:53:04.327880+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "a459eec", "message": "GET /version -> 200"}
+{"timestamp": "2026-11-19T22:53:04.359429+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "a459eec", "message": "GET /work -> 200"}
+{"timestamp": "2026-11-19T22:53:04.442527+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "a459eec", "message": "GET /version -> 200"}
+{"timestamp": "2026-11-19T22:53:04.477984+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "a459eec", "message": "GET /health/live -> 200"}
+{"timestamp": "2026-11-19T22:53:04.501020+00:00", "level": "INFO", "release_version": "1.0.0", "git_sha": "a459eec", "message": "GET /health/ready -> 200"}
 ```
 
 ## Time Spent & Prioritized Next Steps

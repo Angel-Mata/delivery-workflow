@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, develop]
   pull_request:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
   verify-delivery-workflow:
@@ -53,4 +53,3 @@ jobs:
       - name: Cleanup containers
         if: always()
         run: APP_VERSION=1.0.0 docker compose down --remove-orphans || true
-        
